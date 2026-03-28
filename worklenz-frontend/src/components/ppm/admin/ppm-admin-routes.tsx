@@ -8,6 +8,7 @@ const ApprovalQueue = lazy(() => import('./ApprovalQueue'));
 const InternalKanban = lazy(() => import('./InternalKanban'));
 const ClientSettingsPage = lazy(() => import('./ClientSettingsPage'));
 const ClientListPage = lazy(() => import('./ClientListPage'));
+const TeamPage = lazy(() => import('./TeamPage'));
 
 const wrap = (Component: React.LazyExoticComponent<React.ComponentType<any>>) => (
   <Suspense fallback={<SuspenseFallback />}>
@@ -21,6 +22,7 @@ const ppmAdminRoutes: RouteObject[] = [
   { path: 'ppm/pipeline', element: wrap(InternalKanban) },
   { path: 'ppm/clients', element: wrap(ClientListPage) },
   { path: 'ppm/clients/:clientId', element: wrap(ClientSettingsPage) },
+  { path: 'ppm/team', element: wrap(TeamPage) },
 ];
 
 export default ppmAdminRoutes;

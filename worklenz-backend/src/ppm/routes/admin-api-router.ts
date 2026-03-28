@@ -5,6 +5,7 @@ import requirePPMPartner from "../middleware/require-ppm-partner";
 import AdminClientsController from "../controllers/admin-clients-controller";
 import AdminDashboardController from "../controllers/admin-dashboard-controller";
 import AdminApprovalController from "../controllers/admin-approval-controller";
+import AdminTeamController from "../controllers/admin-team-controller";
 import { ServerResponse } from "../../models/server-response";
 
 const adminApiRouter = express.Router();
@@ -73,5 +74,10 @@ adminApiRouter.get("/clients/:id/projects", AdminClientsController.listProjects)
 adminApiRouter.post("/clients/:id/projects", AdminClientsController.linkProject);
 adminApiRouter.delete("/clients/:id/projects/:projectId", AdminClientsController.unlinkProject);
 adminApiRouter.put("/clients/:id/projects/:projectId/primary", AdminClientsController.setPrimaryProject);
+
+// Team management (PPM role assignments)
+adminApiRouter.get("/team", AdminTeamController.list);
+adminApiRouter.put("/team/:userId/role", AdminTeamController.setRole);
+adminApiRouter.delete("/team/:userId/role", AdminTeamController.removeRole);
 
 export default adminApiRouter;
