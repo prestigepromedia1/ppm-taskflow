@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import db from "../../config/db";
 import { ServerResponse } from "../../models/server-response";
 import { log_error } from "../../shared/utils";
+import { sendEmail } from "../../shared/email";
 import { UUID_RE } from "../utils/ppm-db";
 
 export default class AdminClientsController {
@@ -208,7 +209,37 @@ export default class AdminClientsController {
         [email.trim().toLowerCase(), display_name || null, id, role || "viewer", invitedBy]
       );
 
-      // TODO: Send magic link invitation email via Resend (Stream F)
+      // Generate magic link and send invitation email
+      const tokenResult = await db.pool.query(
+        `SELECT ppm_generate_magic_link($1) AS token`,
+        [email.trim().toLowerCase()]
+      );
+      const token = tokenResult.rows[0]?.token;
+
+      if (token) {
+        const baseUrl = (process.env.PPM_PORTAL_URL || `${req.protocol}://${req.get("host")}`).replace(/\/$/, "");
+        const magicLink = `${baseUrl}/portal/login?token=${token}`;
+
+        // Get client name for the email
+        const clientResult = await db.pool.query(`SELECT name FROM ppm_clients WHERE id = $1`, [id]);
+        const clientName = clientResult.rows[0]?.name || "your project";
+
+        await sendEmail({
+          to: [email.trim().toLowerCase()],
+          subject: `You've been invited to the ${clientName} portal`,
+          html: `
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px;">
+              <h2 style="color: #0061FF; margin-bottom: 24px;">You're invited!</h2>
+              <p style="color: #333; line-height: 1.6;">You've been invited to the <strong>${clientName}</strong> project portal where you can track deliverables, provide feedback, and approve work.</p>
+              <p style="color: #333; line-height: 1.6;">Click below to sign in. This link expires in 15 minutes — you can always request a new one from the login page.</p>
+              <a href="${magicLink}" style="display: inline-block; background: #0061FF; color: #fff; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-weight: 600; margin: 24px 0;">Sign In to Portal</a>
+              <p style="color: #999; font-size: 13px; margin-top: 24px;">If you didn't expect this, you can safely ignore this email.</p>
+              <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
+              <p style="color: #bbb; font-size: 12px;">Prestige Pro Media &mdash; TaskFlow</p>
+            </div>
+          `,
+        });
+      }
 
       return res.status(201).json(new ServerResponse(true, result.rows[0]));
     } catch (error: any) {
