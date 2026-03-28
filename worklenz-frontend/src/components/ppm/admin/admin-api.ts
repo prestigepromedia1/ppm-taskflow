@@ -88,6 +88,16 @@ export interface IFeedbackReason {
   label: string;
 }
 
+export interface IPPMTeamMember {
+  team_member_id: string;
+  user_id: string;
+  name: string;
+  email: string;
+  avatar_url: string | null;
+  ppm_role: 'partner' | 'employee' | null;
+  ppm_internal_user_id: string | null;
+}
+
 const BASE = '/ppm/api/admin';
 
 // Admin CSRF token — fetched once, attached to all write requests
@@ -246,6 +256,22 @@ export const adminApi = {
 
   async setPrimaryProject(clientId: string, projectId: string) {
     const res = await apiClient.put<IServerResponse<null>>(`${BASE}/clients/${clientId}/projects/${projectId}/primary`);
+    return res.data;
+  },
+
+  // Team management
+  async getTeamMembers() {
+    const res = await apiClient.get<IServerResponse<IPPMTeamMember[]>>(`${BASE}/team`);
+    return res.data;
+  },
+
+  async setTeamMemberRole(userId: string, ppmRole: 'partner' | 'employee') {
+    const res = await apiClient.put<IServerResponse<any>>(`${BASE}/team/${userId}/role`, { ppm_role: ppmRole });
+    return res.data;
+  },
+
+  async removeTeamMemberRole(userId: string) {
+    const res = await apiClient.delete<IServerResponse<any>>(`${BASE}/team/${userId}/role`);
     return res.data;
   },
 };

@@ -87,6 +87,7 @@ const MasterDashboard: React.FC = () => {
             )}
           </Button>
           <Button onClick={() => navigate('/taskflow/ppm/pipeline')}>Pipeline</Button>
+          <Button onClick={() => navigate('/taskflow/ppm/team')}>Team</Button>
         </Flex>
       </Flex>
 
