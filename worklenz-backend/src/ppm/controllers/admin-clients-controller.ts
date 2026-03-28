@@ -202,17 +202,35 @@ export default class AdminClientsController {
 
       const invitedBy = (req.user as any)?.id;
 
-      const result = await db.pool.query(
-        `INSERT INTO ppm_client_users (email, display_name, client_id, role, invited_by)
-         VALUES ($1, $2, $3, $4, $5)
-         RETURNING id, email, display_name, role, created_at`,
-        [email.trim().toLowerCase(), display_name || null, id, role || "viewer", invitedBy]
+      const normalizedEmail = email.trim().toLowerCase();
+
+      // Check for soft-deleted user with same email — reactivate instead of duplicate insert
+      const existing = await db.pool.query(
+        `SELECT id FROM ppm_client_users WHERE email = $1 AND client_id = $2 AND deactivated_at IS NOT NULL`,
+        [normalizedEmail, id]
       );
+
+      let result;
+      if (existing.rows[0]) {
+        result = await db.pool.query(
+          `UPDATE ppm_client_users SET deactivated_at = NULL, role = $1, display_name = COALESCE($2, display_name), invited_by = $3
+           WHERE id = $4
+           RETURNING id, email, display_name, role, created_at`,
+          [role || "viewer", display_name || null, invitedBy, existing.rows[0].id]
+        );
+      } else {
+        result = await db.pool.query(
+          `INSERT INTO ppm_client_users (email, display_name, client_id, role, invited_by)
+           VALUES ($1, $2, $3, $4, $5)
+           RETURNING id, email, display_name, role, created_at`,
+          [normalizedEmail, display_name || null, id, role || "viewer", invitedBy]
+        );
+      }
 
       // Generate magic link and send invitation email
       const tokenResult = await db.pool.query(
         `SELECT ppm_generate_magic_link($1) AS token`,
-        [email.trim().toLowerCase()]
+        [normalizedEmail]
       );
       const token = tokenResult.rows[0]?.token;
 
@@ -225,7 +243,7 @@ export default class AdminClientsController {
         const clientName = clientResult.rows[0]?.name || "your project";
 
         await sendEmail({
-          to: [email.trim().toLowerCase()],
+          to: [normalizedEmail],
           subject: `You've been invited to the ${clientName} portal`,
           html: `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px;">
