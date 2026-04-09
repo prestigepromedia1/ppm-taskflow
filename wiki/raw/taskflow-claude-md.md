@@ -108,24 +108,5 @@ All assumptions validated:
 - Data Warehouse connection (hours, deliverables, scope burn → BigQuery)
 - Beirut contract interfaces
 
-## Wiki — Living Documentation
-
-This repo has a wiki at `wiki/` (also an Obsidian vault). It contains architecture docs, API references, concept pages, and source summaries with `[[wikilinks]]` between them.
-
-**Schema:** `wiki/CLAUDE.md` defines the full page format, operations (ingest/query/lint), and conventions.
-
-**When to update the wiki:**
-- **New endpoint or controller** → update `wiki/docs/taskflow/admin-api-reference.md` or `portal-api-reference.md`
-- **New migration** → update `wiki/docs/taskflow/database-migrations.md`
-- **New component or route** → update `wiki/docs/taskflow/frontend-components.md`
-- **Architecture change** (new middleware, changed auth flow, new listener channel) → update `wiki/docs/taskflow/backend-architecture.md`
-- **New concept or pattern** → create a page in `wiki/concepts/`
-- **Build status change** (phase completion, new feature done) → update `wiki/entities/taskflow.md` and this file's Build Status section
-- **New source document ingested** → follow the ingest operation in `wiki/CLAUDE.md` (raw → source summary → entity/concept updates → index → log)
-
-**Always update `wiki/index.md` and `wiki/log.md`** when creating or modifying wiki pages.
-
-**Never modify files in `wiki/raw/`** — they are immutable source documents.
-
 ## AGPL-3.0 License
 This repo must remain public on GitHub per AGPL source disclosure requirements.
