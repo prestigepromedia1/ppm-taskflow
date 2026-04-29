@@ -88,6 +88,9 @@ import { userActivityApiService } from '@/api/home-page/user-activity.api.servic
 import projectViewReducer from '@features/project/project-view-slice';
 import taskManagementFieldsReducer from '@features/task-management/taskListFields.slice';
 
+// PPM-OVERRIDE: Client portal state
+import ppmPortalReducer from '@/features/ppm/ppmPortalSlice';
+
 export const store = configureStore({
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
@@ -179,6 +182,9 @@ export const store = configureStore({
     grouping: groupingReducer,
     taskManagementSelection: selectionReducer,
     taskManagementFields: taskManagementFieldsReducer,
+
+    // PPM-OVERRIDE: Client portal state
+    ppmPortal: ppmPortalReducer,
   },
 });
 

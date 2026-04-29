@@ -23,6 +23,10 @@ import safeControllerFunction from "./shared/safe-controller-function";
 import AwsSesController from "./controllers/aws-ses-controller";
 import { CSP_POLICIES } from "./shared/csp";
 
+// PPM-OVERRIDE: PPM Client Hub routes and LISTEN/NOTIFY listener
+import { ppmAuthRouter, ppmPortalRouter, ppmInternalRouter } from "./ppm/routes";
+import { ppmStatusListener } from "./ppm/listeners/ppm-status-listener";
+
 const app = express();
 
 // Trust first proxy if behind reverse proxy
@@ -195,6 +199,21 @@ const apiLimiter = rateLimit({
 app.use("/api/v1", apiLimiter, isLoggedIn, apiRouter);
 app.use("/secure", authRouter);
 app.use("/public", public_router);
+
+// PPM-OVERRIDE: PPM Client Hub API routes
+// Auth routes are public (magic link flow — no Worklenz login required).
+app.use("/ppm/api/auth", ppmAuthRouter);
+// Portal routes use ppmClientAuth middleware (no Worklenz login — clients aren't Worklenz users).
+app.use("/ppm/api/portal", ppmPortalRouter);
+// Internal routes require Worklenz login (same as /api/v1).
+app.use("/ppm/api", apiLimiter, isLoggedIn, ppmInternalRouter);
+
+// PPM-OVERRIDE: Start LISTEN/NOTIFY listener for real-time status routing
+if (process.env.PPM_CLIENT_PORTAL_ENABLED !== "false") {
+  ppmStatusListener.start().catch((err) => {
+    console.error("[PPM] Failed to start status listener:", err);
+  });
+}
 
 if (isInternalServer()) {
   app.use("/email-templates", emailTemplatesRouter);

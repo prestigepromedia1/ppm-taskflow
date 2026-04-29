@@ -6,6 +6,8 @@ import mainRoutes from './main-routes';
 import notFoundRoute from './not-found-route';
 import accountSetupRoute from './account-setup-routes';
 import reportingRoutes from './reporting-routes';
+// PPM-OVERRIDE: Client portal routes
+import { ppmPortalRoutes } from '@/app/ppm/routes/ppm-portal-routes';
 import { useAuthService } from '@/hooks/useAuth';
 import { AuthenticatedLayout } from '@/layouts/AuthenticatedLayout';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -203,7 +205,8 @@ const StaticLicenseExpired = memo(() => {
 StaticLicenseExpired.displayName = 'StaticLicenseExpired';
 
 // Create route arrays (moved outside of useMemo to avoid hook violations)
-const publicRoutes = [...rootRoutes, ...authRoutes, notFoundRoute];
+// PPM-OVERRIDE: Portal routes are public (separate auth via magic link)
+const publicRoutes = [...rootRoutes, ...authRoutes, ...ppmPortalRoutes, notFoundRoute];
 
 // Apply combined guard to main routes that require both auth and setup completion
 const protectedMainRoutes = wrapRoutes(mainRoutes, AuthAndSetupGuard);
