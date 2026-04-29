@@ -1,6 +1,9 @@
 -- Kill-Shot Spike 1b: RLS Row-Level Security for Client Isolation
 -- Proves: client_user can only see their own client's data at the DB level
 
+-- Required for gen_random_bytes() in magic link auth (spike 003)
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- PPM clients table
 CREATE TABLE IF NOT EXISTS ppm_clients (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
