@@ -84,3 +84,4 @@ backups/
 *.bak
 *.tmp
 nginx/conf.d/*.bak
+.gstack/
