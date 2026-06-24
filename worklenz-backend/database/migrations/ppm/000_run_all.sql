@@ -58,7 +58,10 @@
 \echo '[18/19] ppm_feedback_reasons_seed...'
 \i 018_ppm_feedback_reasons_seed.sql
 
-\echo '[19/19] ppm_migrate_comments...'
+\echo '[19/20] ppm_migrate_comments...'
 \i 019_ppm_migrate_comments.sql
+
+\echo '[20/20] ppm_deliverable_monday_ref...'
+\i 020_ppm_deliverable_monday_ref.sql
 
 \echo '=== All PPM migrations complete ==='
