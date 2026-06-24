@@ -1,3 +1,30 @@
+## PPM TaskFlow (this fork)
+
+A soft fork of [Worklenz](https://github.com/Worklenz/worklenz) being simplified into a lean replacement for Monday.com ($450/month). PPM TaskFlow adds 3-layer visibility (Master admin → Internal team → Client portal) and automated feedback routing on top of the Worklenz core.
+
+**PPM conventions in this fork:**
+- Database tables: `ppm_` prefix (e.g., `ppm_deliverables`, `ppm_clients`, `ppm_retainer_utilization`). Worklenz core tables are never modified — PPM extends them with FK-linked tables.
+- Backend code: `worklenz-backend/src/ppm/`
+- Frontend code: `worklenz-frontend/src/components/ppm/` and `worklenz-frontend/src/app/ppm/`
+- Environment variables: `PPM_` prefix
+- Modified Worklenz files (minimized): marked `// PPM-OVERRIDE: [reason]`
+
+**Current phase:** Kill-shot spike complete (Phase 1). RLS, LISTEN/NOTIFY, magic-link portal auth, API-writable tasks, and 15-min time-tracking increment are all validated. Spike code lives in `spike/` and has not yet been merged into the app. A Monday.com → TaskFlow forward-mirror is in flight on `feat/monday-forward-mirror`.
+
+**Phase 2 (3-layer customization)** is ~75% complete: 19 PPM migrations, admin dashboard, client portal, approval queue, retainer utilization, file attachments, status sync triggers, and LISTEN/NOTIFY email routing are all built.
+
+### Role in the PPM Ecosystem / North-Star
+
+The PPM ecosystem is one agency OS — a single URL where all client work flows through one identity plane, one data seam (BigQuery in the Data Warehouse), one memory layer (gbrain on Supabase), and one agent + Control Tower layer.
+
+TaskFlow is the **"track" side** of the seam: "plan in the marketing calendar (Data Warehouse), track in TaskFlow." Agents detect signals in the Data Warehouse and execute work through CreativeHQ; TaskFlow surfaces that work to the internal team and client in a unified portal. Separate services — TaskFlow does not own analytics or creative generation; it owns project state and client visibility.
+
+Canonical north-star description: `ppm-automation-tool-ecosystem` repo.
+
+---
+
+<!-- UPSTREAM WORKLENZ README BELOW — DO NOT REMOVE OR REPLACE -->
+
 <div align="center">
 <h1 align="center">
     <a href="https://worklenz.com" target="_blank" rel="noopener noreferrer">
